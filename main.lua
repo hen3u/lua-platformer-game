@@ -1,68 +1,53 @@
+dofile("utils.lua")
+dofile("player.lua")
+
 function love.load()
+  -- init background
   bg = love.graphics.newImage("graphics/background.jpg")
+
+  -- init audio
   music = love.audio.newSource("sounds/seashore.mp3", "stream")
   music:setLooping(true)
   music:play()
-
   jump = love.audio.newSource("sounds/jump.wav", "static")
 
+  -- init players
+  players = {}
+  args1 = {
+    keys = {jump="up",left="left",right="right"}
+  }
+  player1 = Player:new(self,args1)
+  player1.x = 0
+  player1.y = love.graphics.getHeight() - player1.height
 
-  player = {}
-  player.x = 0
-  player.y = 0
-  player.width = 32
-  player.height = 64
-  player.jump_height = 20
+  args2 = {
+    keys = {jump="z",left="q",right="d"}
+  }
+  player2 = Player:new(self,args2)
+  player2.x = love.graphics.getWidth() - player2.width
+  player2.y = love.graphics.getHeight() - player2.height
 
-  -- init
-  player.y = love.graphics.getHeight() - player.height
 
-  counter = 0
+  table.insert(players, player1)
+  table.insert(players, player2)
 end
 
 function love.update(dt)
-  -- if love.keyboard.isDown("up") then
-  --   if player.y - 10 >= 0 then
-  --     player.y = player.y - 10
-  --   else
-  --     player.y = 0
-  --   end
-  if love.keyboard.isDown("left") then
-    if player.x - 10 >= 0 then
-      player.x = player.x - 10
-    else
-      player.x = 0
+  for _,player in pairs(players) do
+    player:update()
+    if player.y <= love.graphics.getHeight() - player.height then
+      player.y = player.y + 5
     end
-  end
-  if love.keyboard.isDown("right") then
-    if player.x + 10 <= love.graphics.getWidth() - player.width then
-      player.x = player.x + 10
-    else
-      player.x = love.graphics.getWidth() - player.width
-    end
-  end
-  if love.keyboard.isDown("space") then
-    jump:play()
-    player.y = player.y - player.jump_height
-  -- elseif love.keyboard.isDown("down") then
-  --   if player.y +10 <= love.graphics.getHeight() - player.height then
-  --     player.y = player.y + 10
-  --   else
-  --     player.y = love.graphics.getHeight() - player.height
-  --   end
-  end
-
-  if player.y <= love.graphics.getHeight() - player.height then
-    player.y = player.y + 5
   end
 
 end
 
 function love.draw()
     love.graphics.draw(bg,0,0,0,love.graphics.getWidth()/bg:getWidth(),love.graphics.getHeight()/bg:getHeight())
-    --love.graphics.print("Hello World" .. counter, 400, 300)
 
-    love.graphics.rectangle("fill", player.x, player.y, player.width, player.height)
+    for _,player in pairs(players) do
+      player:draw()
+    end
 end
 
 function love.keypressed(key, scancode, isrepeat)
