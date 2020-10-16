@@ -13,7 +13,11 @@ function Player:new(o,args)
   return o
 end
 
-function Player:update()
+function Player:load()
+
+end
+
+function Player:update(dt)
   if love.keyboard.isDown(self.keys.left) then
     if self.x - 10 >= 0 then
       self.x = self.x - 10

@@ -1,9 +1,14 @@
 dofile("utils.lua")
+dofile("tilemap.lua")
 dofile("player.lua")
 
 function love.load()
   -- init background
   bg = love.graphics.newImage("graphics/background.jpg")
+
+  -- init map
+  tilemap = Map:new()
+  tilemap:load()
 
   -- init audio
   music = love.audio.newSource("sounds/seashore.mp3", "stream")
@@ -11,17 +16,23 @@ function love.load()
   music:play()
   jump = love.audio.newSource("sounds/jump.wav", "static")
 
+  --[[ DEBUG ]]
+  music:setVolume(0.0)
+  jump:setVolume(0.0)
+
   -- init players
   players = {}
   args1 = {
-    keys = {jump="up",left="left",right="right"}
+    keys = {jump="up",left="left",right="right"},
+    sprite = "graphics/hitmonlee.png"
   }
   player1 = Player:new(self,args1)
   player1.x = 0
   player1.y = love.graphics.getHeight() - player1.height
 
   args2 = {
-    keys = {jump="z",left="q",right="d"}
+    keys = {jump="z",left="q",right="d"},
+    sprite = "graphics/hitmonchan.png"
   }
   player2 = Player:new(self,args2)
   player2.x = love.graphics.getWidth() - player2.width
@@ -30,11 +41,16 @@ function love.load()
 
   table.insert(players, player1)
   table.insert(players, player2)
+
+  for _,player in pairs(players) do
+    player:load()
+  end
+
 end
 
 function love.update(dt)
   for _,player in pairs(players) do
-    player:update()
+    player:update(dt)
     if player.y <= love.graphics.getHeight() - player.height then
       player.y = player.y + 5
     end
@@ -43,11 +59,17 @@ function love.update(dt)
 end
 
 function love.draw()
-    love.graphics.draw(bg,0,0,0,love.graphics.getWidth()/bg:getWidth(),love.graphics.getHeight()/bg:getHeight())
+  love.graphics.draw(bg,0,0,0,love.graphics.getWidth()/bg:getWidth(),love.graphics.getHeight()/bg:getHeight())
 
-    for _,player in pairs(players) do
-      player:draw()
-    end
+  tilemap:draw()
+
+  for _,player in pairs(players) do
+    player:draw()
+  end
+
+  love.graphics.print("FPS: "..love.timer.getFPS(), 10, 20)
+  love.graphics.print("WIDTH: "..love.graphics.getWidth()/32, 10,0)
+  love.graphics.print("HEIGHT: "..love.graphics.getWidth()/32, 10,10)
 end
 
 function love.keypressed(key, scancode, isrepeat)
