@@ -1,14 +1,14 @@
-dofile("utils.lua")
-dofile("tilemap.lua")
-dofile("player.lua")
+require("utils")
+require("tilemap")
+require("player")
 
 function love.load()
   -- init background
   bg = love.graphics.newImage("graphics/background.jpg")
 
-  -- init map
+  -- init tilemap
   tilemap = Map:new()
-  tilemap:load()
+  tilemap:load("map/map1")
 
   -- init audio
   music = love.audio.newSource("sounds/seashore.mp3", "stream")
@@ -46,6 +46,8 @@ function love.load()
     player:load()
   end
 
+  --love.window.setFullscreen(true, "desktop")
+
 end
 
 function love.update(dt)
@@ -55,18 +57,21 @@ function love.update(dt)
       player.y = player.y + 5
     end
   end
-
 end
 
 function love.draw()
+  -- draw background
   love.graphics.draw(bg,0,0,0,love.graphics.getWidth()/bg:getWidth(),love.graphics.getHeight()/bg:getHeight())
 
+  -- draw tilemap
   tilemap:draw()
 
+  -- draw players
   for _,player in pairs(players) do
     player:draw()
   end
 
+  --- draw HUD
   love.graphics.print("FPS: "..love.timer.getFPS(), 10, 20)
   love.graphics.print("WIDTH: "..love.graphics.getWidth()/32, 10,0)
   love.graphics.print("HEIGHT: "..love.graphics.getWidth()/32, 10,10)

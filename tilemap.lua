@@ -1,5 +1,3 @@
-local tileSize = 32
-
 Map = {}
 
 function Map:new(o)
@@ -14,8 +12,27 @@ function Map:new(o)
   return o
 end
 
-function Map:load()
-  MapTable = loadTiledMap("map/map1.txt")
+function Map:load(path)
+  local map = require(path)
+
+  self.quads = {}
+  self.tileset = map.tilesets[1]
+  self.layers = map.layers
+  self.image = love.graphics.newImage(self.tileset.image)
+
+  for y = 0, (self.tileset.imageheight / self.tileset.tileheight) - 1 do
+    for x = 0, (self.tileset.imagewidth / self.tileset.tilewidth) - 1 do
+        local quad = love.graphics.newQuad(
+            x * self.tileset.tilewidth,
+            y * self.tileset.tileheight,
+            self.tileset.tilewidth,
+            self.tileset.tileheight,
+            self.tileset.imagewidth,
+            self.tileset.imageheight
+        )
+        table.insert(self.quads,quad)
+    end
+  end
 end
 
 function Map:update()
@@ -23,33 +40,21 @@ function Map:update()
 end
 
 function Map:draw()
-  for y,row in ipairs(MapTable) do
-    if y ~= 1 then
-
-      for x,idx in pairs(row) do
-        if idx == "049" or idx == "021" or idx == "015" then
-          love.graphics.setColor(0, 0, 0, 1) -- background color
-          love.graphics.rectangle("fill", x*tileSize, y*tileSize, tileSize, tileSize)
-
-          love.graphics.setColor(0, 1, 0, 1) -- line and text color
-          love.graphics.rectangle("line", x*tileSize, y*tileSize, tileSize, tileSize)
-          love.graphics.print(idx, x*tileSize, y*tileSize)
-
-          love.graphics.setColor(1, 1, 1, 1) -- default color
+  for i, layer in ipairs(self.layers) do
+    for y = 0, layer.height - 1 do
+      for x = 0, layer.width - 1 do
+        local index = (x + y * layer.width) + 1
+        local tid = layer.data[index]
+        if tid ~= 0 then
+          local quad = self.quads[tid]
+          love.graphics.draw(
+              self.image,
+              quad,
+              x * self.tileset.tilewidth,
+              y * self.tileset.tileheight
+          )
         end
       end
     end
   end
-end
-
-function loadTiledMap(path)
-  local rawTileMap = {}
-  for row in love.filesystem.lines(path) do
-    elements = {}
-    for element in row:gmatch("%w+") do
-      table.insert(elements, element)
-    end
-    table.insert(rawTileMap,elements)
-  end
-  return rawTileMap
 end
