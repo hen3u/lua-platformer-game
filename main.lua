@@ -23,28 +23,32 @@ function love.load()
   -- init players
   players = {}
   args1 = {
+    width = 50,
+    height = 61,
+    direction = "right",
     keys = {jump="up",left="left",right="right"},
-    sprite = "graphics/hitmonlee.png"
+    sprite = "graphics/hitmonlee.png",
+    leader = true
   }
-  player1 = Player:new(self,args1)
-  player1.x = 0
-  player1.y = love.graphics.getHeight() - player1.height
 
   args2 = {
+    width = 34,
+    height = 60,
+    direction = "left",
     keys = {jump="z",left="q",right="d"},
     sprite = "graphics/hitmonchan.png"
   }
-  player2 = Player:new(self,args2)
+
+  player1 = Player:load(args1)
+  player2= Player:load(args2)
+
+  player1.x = player1.width
+  player1.y = love.graphics.getHeight() - player1.height
   player2.x = love.graphics.getWidth() - player2.width
   player2.y = love.graphics.getHeight() - player2.height
 
-
   table.insert(players, player1)
   table.insert(players, player2)
-
-  for _,player in pairs(players) do
-    player:load()
-  end
 
   --love.window.setFullscreen(true, "desktop")
 
